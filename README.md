@@ -56,9 +56,21 @@ Not implemented yet:
 	-l | --list, list default mutators
 
 
-Usage example:
+Usage examples:
+	
+	#stdout output
+	:/Surku$ echo "Hello Fuzz..." > test.txt
+	:/Surku$ node Surku.js -Mm 2 -mm 1 ./test.txt
+			 Hell���c㚶3��Ggo Fuzz...
 
-	node Surku.js -n 10 -Mm 10 -mm 1 -o ./fuzz-%n.html ./samples-html/
+	:/Surku$ node Surku.js -Mm 2 -mm 1 ./test.txt
+			 Hello Fuzz..z...
+
+	:/Surku$ node Surku.js -Mm 2 -mm 1 ./test.txt
+			 Hello Fuzz�..
+
+	#Generate multiple files into folder ./output		 
+	:/Surku$ node Surku.js -n 10 -o ./output/fuzz-%n.txt ./test.txt
 
 Application interface:
 

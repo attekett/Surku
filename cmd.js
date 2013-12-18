@@ -134,12 +134,12 @@ function cmd(){
 		var resolvedPath=path.resolve(outputExpression)
 		var pathOnly=path.dirname(resolvedPath)
 		var baseName=path.basename(resolvedPath)
-		console.log(baseName)
+		console.log("Output directory: "+pathOnly)
 		if(!fs.existsSync(pathOnly)){
 			console.log('Output path does not exist.')
 			process.exit(2)
 		}
-		else if(fs.statSync(pathOnly+'/'+baseName).isDirectory()){
+		else if(baseName.indexOf("%n")==-1){
 			console.log('Must have output filename syntax. e.g. fuzz-%n.html')
 			process.exit(2)
 		}
@@ -231,8 +231,7 @@ function cmd(){
 				this.surkuConfig.inputPath=inputPath
 			}
 			else{
-			console.log('Input path '+inputPath+' is not directory.')
-			process.exit(2)
+			    this.surkuConfig.inputFile=inputPath	
 			}
 		}
 		else{

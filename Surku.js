@@ -199,7 +199,8 @@ if(require.main===module){
 	if(config.verbose>=5)
 		console.log(config)
 	var S=new Surku(config)
-	var samples=fs.readdirSync(config.inputPath);
+
+	
 	var sampleSelectorRandom=S.m.newMersenneTwister(S.seedBase.genrand_int31())
 	var output={}
 	var fileName=''
@@ -207,28 +208,43 @@ if(require.main===module){
 	if(config.outputName!==undefined){
 		fileName=config.outputName.split('%n')
 	}
-	for(var x=0; x<config.count;x++){
-		var index=Math.floor(sampleSelectorRandom.genrand_real1()*samples.length)
-		var sample=samples[index]
-		debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
-		if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
-			x--
-			samples.splice(index,1)
-			if(samples.length==0){
-				console.log("Input folder doesn't contain any files")
-				process.exit(2)
-			}
-		}	
-		else{
-			output=S.generateTestCase(fs.readFileSync(config.inputPath+'/'+sample))
-			if(fileName=='')
-				console.log(output.toString())
+	if(config.inputPath){
+		var samples=fs.readdirSync(config.inputPath);
+		for(var x=0; x<config.count;x++){
+			var index=Math.floor(sampleSelectorRandom.genrand_real1()*samples.length)
+			var sample=samples[index]
+			debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
+			if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
+				x--
+				samples.splice(index,1)
+				if(samples.length==0){
+					console.log("Input folder doesn't contain any files")
+					process.exit(2)
+				}
+			}	
 			else{
-				debugPrint('Output file: '+fileName.join(x)+'\n')
-				fs.writeFileSync(fileName.join(x))
+				output=S.generateTestCase(fs.readFileSync(config.inputPath+'/'+sample))
+				if(fileName=='')
+					console.log(output.toString())
+				else{
+					debugPrint('Output file: '+fileName.join(x)+'\n')
+					fs.writeFileSync(fileName.join(x))
+				}
 			}
-		}
 
+		}
+	}
+	else{
+		var input=fs.readFileSync(config.inputFile)
+		for(var x=0; x<config.count;x++){
+				output=S.generateTestCase(input)
+				if(fileName=='')
+					console.log(output.toString())
+				else{
+					debugPrint('Output file: '+fileName.join(x)+'\n')
+					fs.writeFileSync(fileName.join(x))
+				}
+		}
 	}
 }
 else{
