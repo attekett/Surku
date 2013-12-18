@@ -7,11 +7,13 @@ function rint(max){
 	return Math.floor(Math.random()*max)	
 }
 
-function verifySeed(input){
+function verifySeed(input,seed,verbose){
 	var rounds=10
 	var outputBuffer=[]
 	var failed=false
 	while(rounds--){
+		var selfTest=new Surku({seed:seed,verbose:verbose})
+
 		if(input=='string')
 			outputBuffer.push(selfTest.generateTestCase(testString))
 		else
@@ -41,17 +43,21 @@ var seed=Math.floor((Math.random()*10000))
 var selfTest=new Surku()
 console.error('Initializing new Surku with default config.\nEnabling Surku verbose. (level 0)')
 selfTest.config.verbose=0
+if(process.argv.indexOf("--debug")!=-1){
+	selfTest.config.verbose=5
+	var verbose=5;
+}
 console.error(selfTest.config)
 selfTest.config.seed=seed
 console.log('\n\nRunning with input-data: \n"'+testString+'"\n')
 console.error('Input-data length: '+testString.length+'\n')
 
 console.error('Running 10 times with seed '+seed)
-verifySeed('string')
+verifySeed('string',seed,verbose)
 seed=Math.floor((Math.random()*10000))
 console.error('Changing seed to '+seed)
 selfTest.config.seed=seed
-verifySeed('string')
+verifySeed('string',seed,verbose)
 selfTest.config.seed=undefined
 
 console.error('Running with random seed')	

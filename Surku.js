@@ -14,7 +14,7 @@ var Surku = function (user_config){
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
 	this.config={
-		maxMutations:undefined,
+		maxMutations:20,
 		minMutations:1,
 		chunkSize:2000,
 		useOnly: undefined,
@@ -50,7 +50,6 @@ var Surku = function (user_config){
 		var div=this.r.genrand_real1()+Number.MIN_VALUE //Avoid divide by zero.
 		return (Math.floor((num/div)) ? Math.floor((num/div)) : 1) % max
 	}
-
 	var seedBase  = this.m.newMersenneTwister(self.config.seed)
 	this.seedBase=seedBase
 
@@ -66,8 +65,9 @@ var Surku = function (user_config){
 		this.ra=self.ra
 
 		this.rint=self.rint
-
+		
 		this.r=self.m.newMersenneTwister(seedBase.genrand_int31())
+		
 		if(input instanceof Buffer){
 			input=new Buffer((mutate.call(this,input.toString('binary'))),'binary')
 			return input
@@ -156,6 +156,10 @@ var Surku = function (user_config){
 				var mutations=this.rint(this.config.maxMutations-this.config.minMutations)+this.config.minMutations
 			else
 				var mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
+			
+			this.debugPrint('Running mutate with seed: '+self.config.seed+"\n",1)
+			
+			this.debugPrint('Running with n mutations: '+mutations+"\n",1)
 			while(mutations--){
 					var index=0;
 					if(input.length>this.config.chunkSize)
