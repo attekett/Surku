@@ -11,65 +11,73 @@ email ( attekett(at)gmail.com)
 
 Files in this release:
 
-Surku.js
-The core implementation of Surku
+	Surku.js: The core implementation of Surku
 
-cmd.js
-Commandline parser
+	cmd.js: Commandline parser
 
-mersenne-twister.js
-Random number generator
+	mersenne-twister.js: Random number generator
 
-mutators.js
-Contains default mutators and Surku.mutators API
+	mutators.js: Contains default mutators and Surku.mutators API
 
-generators.js
-Contains some prewritten random number generators.
+	generators.js: Contains some prewritten random number generators.
 
-Folder Examples:
-Contains some basic examples what can be done with Node.js and Surku
+	xmlMutator.js: xml-mutations
+
+	Examples: Contains some basic examples what can be done with Node.js and Surku
 
 
 Commandline interface:
 
 Implemented:
 
--h | --help, show this thing
--a | --about, what is this thing
--V | --version, show version info
--o | --output <arg>, file name pattern for outputs, e.g. output/fuzz-%n.foo, required
--n | --count <arg>, how many files to generate, defaults to 1
--s | --seed <arg>, which seed to use, defaults to random
--v | --verbose, verbosed console-outputs
--Mm | --maxmutations <arg>, set max mutations per output, default 20
--mm | --minmutations <arg>, set min mutations per output, default 2
+	-h | --help, show this thing
+
+	-a | --about, what is this thing
+	
+	-V | --version, show version info
+	
+	-o | --output <arg>, file name pattern for outputs, e.g. output/fuzz-%n.foo, required
+	
+	-n | --count <arg>, how many files to generate, defaults to 1
+	
+	-s | --seed <arg>, which seed to use, defaults to random
+	
+	-v | --verbose, verbosed console-outputs
+	
+	-Mm | --maxmutations <arg>, set max mutations per output, default 20
+	
+	-mm | --minmutations <arg>, set min mutations per output, default 2
+
 
 Not implemented yet:
 
--m | --mutations <arg>, which mutators to use, for defaults use argument "-l" or "--list"
--l | --list, list default mutators
+	-m | --mutations <arg>, which mutators to use, for defaults use argument "-l" or "--list"
+
+	-l | --list, list default mutators
+
 
 Usage example:
 
-node Surku.js -n 10 -Mm 10 -mm 1 -o ./fuzz-%n.html ./samples-html/
+	node Surku.js -n 10 -Mm 10 -mm 1 -o ./fuzz-%n.html ./samples-html/
 
 Application interface:
 
-Through application interface you can dynamically add and remove mutators and change probabilities for mutators.
+	Through application interface you can dynamically add and remove mutators and change probabilities for mutators.
 
 Simple init without specific configuration:
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku()
-var testCase=newGenerator.generateTestCase('Hello Fuzz World')
-console.log(testCase)
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku()
+	var testCase=newGenerator.generateTestCase('Hello Fuzz World')
+	console.log(testCase)
+
 
 Init with specific configuration - Creates new Surku instance with max and min mutations per testcase set to 1 :
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku({maxMutations:1,minMutations:1})
-var testCase=newGenerator.generateTestCase('Hello Fuzz World')
-console.log(testCase)
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku({maxMutations:1,minMutations:1})
+	var testCase=newGenerator.generateTestCase('Hello Fuzz World')
+	console.log(testCase)
 
 Possible config-object values:
 	
