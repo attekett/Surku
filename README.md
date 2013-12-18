@@ -62,7 +62,7 @@ Usage example:
 
 Application interface:
 
-	Through application interface you can dynamically add and remove mutators and change probabilities for mutators.
+Through application interface you can dynamically add and remove mutators and change probabilities for mutators.
 
 Simple init without specific configuration:
 
@@ -90,8 +90,7 @@ Possible config-object values:
 
 --Mutators--
 
-Surku mutators are function that as a first argument take in at max 1KB of data from a sample file, 
-do mutation to the data and return the result. 
+Surku mutators are function that as a first argument take in at max config.chunkSize defined mount of data from a sample file, do mutation to the data and return the result. 
 
 The input data is in form of binary-string:
 Node.js - Encoding: 'binary' - A way of encoding raw binary data into strings by using only the first 8 bits of each character.
@@ -105,7 +104,7 @@ mutators.
 
 As a second argument the function is provided with isString boolean, which can be used if the mutation 
 can be applied only to either string- or binary-format data.(See replaceXMLValuePair mutator in mutators.js) 
-The detection of string/binary-data is done with regexping the 1KB slice of the sample for /[\u0000-\u0005]+/ 
+The detection of string/binary-data is done with regexping the slice of the sample for /[\u0000-\u0005]+/ 
 (I know this method is far from perfect. :D ) 
 
 Mutators can also use storage that allows data collected from previous executions to be reused in next executions.
@@ -117,7 +116,6 @@ that those can be used in mutators without breaking the reproducing with seed.
 
 Available default mutators: (Note: See more specific funtionality of each mutator from mutators.js)
 
-var mutators={
 	freqString:
 		{mutatorFunction:freqString,weight:10},
 	regExpTrick:
@@ -156,49 +154,49 @@ var mutators={
 		{mutatorFunction:repeatChars,weight:1},
 	bitFlip:
 		{mutatorFunction:bitFlip,weight:4}
-}
+
 
 Add new mutators:(Note:  You must add the new mutator for every Surku instance you create, 
 							or add it into mutators.js)
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku({maxMutations:1,minMutations:1,useOnly:[]})
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku({maxMutations:1,minMutations:1,useOnly:[]})
 
-//addNewMutator:function(type,name,weight,mutatorFunction)
-newGenerator.mutators.addNewMutator('DemoMutator',5,function(input){
-	var where=Math.floor(Math.random()*input.length)
-	return input.slice(0,where)+'Hello World'+input.slice(where,input.length)
-})
+	//addNewMutator:function(type,name,weight,mutatorFunction)
+	newGenerator.mutators.addNewMutator('DemoMutator',5,function(input){
+		var where=Math.floor(Math.random()*input.length)
+		return input.slice(0,where)+'Hello World'+input.slice(where,input.length)
+	})
 
 Remove mutator: 
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku()
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku()
 
-//removeMutator:function(name)
-newGenerator.mutators.removeMutator('bitFlip')
+	//removeMutator:function(name)
+	newGenerator.mutators.removeMutator('bitFlip')
 
 
 Enable only specific mutators:
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku()
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku()
 
-//useOnlyMutators:function(arrayOfMutatorNames
-newGenerator.mutators.useOnlyMutators(['bitFlip','freqString'])
+	//useOnlyMutators:function(arrayOfMutatorNames
+	newGenerator.mutators.useOnlyMutators(['bitFlip','freqString'])
 
 Randomize mutator weights:(Note: this method randomly set weight for each mutation into range 1-10)
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku()
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku()
 
-newGenerator.mutators.randomizeWeights()
+	newGenerator.mutators.randomizeWeights()
 
 Usage:
 
-var Surku=require('./Surku.js')
-var newGenerator=new Surku()
+	var Surku=require('./Surku.js')
+	var newGenerator=new Surku()
 
-console.log(newGenerator.generateTestCase(sample))
+	console.log(newGenerator.generateTestCase(sample))
 
 sample can be either String(e.g. user input) or Buffer(e.g. fs.readFileSync() output). 
