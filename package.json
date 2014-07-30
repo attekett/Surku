@@ -1,0 +1,22 @@
+{
+  "name": "surku",
+  "description": "A mutation-based general purpose fuzzer.",
+  "version": "0.1.0",
+  "main": "Surku.js",
+  "repository" : {
+      "type" : "git",
+      "url" : "http://github.com/attekett/Surku.git"
+  },
+  "keywords" : [
+      "fuzzing",
+      "mutation-based"
+  ],
+  "author" : {
+      "name" : "Atte Kettunen",
+      "email" : "attekett@gmail.com"
+  },
+  "license" : "MIT",
+  "engine" : {
+      "node" : ">=0.8"
+  }
+}

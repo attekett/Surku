@@ -92,7 +92,6 @@ var numberGenerators=[
 	{generator:randomSignedShortFloat,weight:1},
 	{generator:randomSignedLongFloat,weight:1},
 	{generator:randomInterestingNumber,weight:5}
-//	{generator:randomExponentNumber,weight:1}
 ]
 
 
