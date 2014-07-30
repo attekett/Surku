@@ -1,0 +1,20 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'link', '-g' ]
+2 info using npm@1.4.14
+3 info using node@v0.10.29
+4 verbose node symlink /usr/bin/node
+5 error Error: link should never be --global.
+5 error Please re-run this command with --local
+5 error     at EventEmitter.link (/usr/lib/node_modules/npm/lib/link.js:41:15)
+5 error     at Object.commandCache.(anonymous function) (/usr/lib/node_modules/npm/lib/npm.js:219:11)
+5 error     at EventEmitter.<anonymous> (/usr/lib/node_modules/npm/bin/npm-cli.js:83:28)
+5 error     at process._tickCallback (node.js:419:13)
+6 error If you need help, you may report this *entire* log,
+6 error including the npm and node versions, at:
+6 error     <http://github.com/npm/npm/issues>
+7 error System Linux 3.13.0-32-generic
+8 error command "/usr/bin/node" "/usr/bin/npm" "link" "-g"
+9 error cwd /home/attekett/Surku
+10 error node -v v0.10.29
+11 error npm -v 1.4.14
+12 verbose exit [ 1, true ]
