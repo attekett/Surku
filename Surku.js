@@ -242,7 +242,7 @@ if(require.main===module){
 					console.log(output.toString())
 				else{
 					debugPrint('Output file: '+fileName.join(x)+'\n')
-					fs.writeFileSync(fileName.join(x))
+					fs.writeFileSync(fileName.join(x),output)
 				}
 		}
 	}
