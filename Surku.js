@@ -1,12 +1,3 @@
-#!/usr/bin/env node
-
-/*
-
-Surku v 0.1.1
-
-
-*/
-
 var fs 		 = require('fs');
 var Surku = function (user_config){
 	this.m 		  = require('./mersenne-twister.js')
@@ -14,9 +5,9 @@ var Surku = function (user_config){
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
 	this.config={
-		maxMutations:20,
+		maxMutations:5,
 		minMutations:1,
-		chunkSize:2000,
+		chunkSize:3000,
 		useOnly: undefined,
 		seed: undefined,
 		verbose: undefined
@@ -32,15 +23,26 @@ var Surku = function (user_config){
 	}
 
 	this.ra=function (array){
-		if(array)
+		if(Array.isArray(array))
 			return array[this.rint(array.length)]
-		else
+		else{
+			console.error("ra: called with non-array")
+			console.error(array)
 			return false
+		}
 	}
 
 	this.rint=function (max){
-		var rintOutput=Math.floor(this.r.genrand_real1()*max)
-		return rintOutput
+		if(max || max==0){
+			var rintOutput=Math.floor(this.r.genrand_real1()*max)
+			if(Number.isNaN(rintOutput))
+				console.error("rint: called with non-number "+max+" results to "+rintOutput)
+			return rintOutput
+		}
+		else{
+			console.error("rint: called with "+max)
+			return false
+		}
 	}
 
 	this.wrint=function(max){
@@ -50,6 +52,7 @@ var Surku = function (user_config){
 		var div=this.r.genrand_real1()+Number.MIN_VALUE //Avoid divide by zero.
 		return (Math.floor((num/div)) ? Math.floor((num/div)) : 1) % max
 	}
+
 	var seedBase  = this.m.newMersenneTwister(self.config.seed)
 	this.seedBase=seedBase
 
@@ -65,9 +68,8 @@ var Surku = function (user_config){
 		this.ra=self.ra
 
 		this.rint=self.rint
-		
+
 		this.r=self.m.newMersenneTwister(seedBase.genrand_int31())
-		
 		if(input instanceof Buffer){
 			input=new Buffer((mutate.call(this,input.toString('binary'))),'binary')
 			return input
@@ -93,8 +95,8 @@ var Surku = function (user_config){
 		} 
 	*/
 	this.storage={
-		maxKeys:400,
-		maxValues:50,
+		maxKeys:200,
+		maxValues:20,
 		valueStorages:{},
 		storeKeyValuePair:function(keyValueArray,where){
 			//Check if valueStorage name was provided
@@ -148,7 +150,8 @@ var Surku = function (user_config){
 	//mutate(input)
 	//input: Data to be mutated
 	//
-	//
+	//Selects amount of mutations to be done based on config.maxMutations and config.minMutations
+	//Takes data chunk size of config.chunkSize from random location inside the input data and applies mutators.
 	//
 	function mutate(input){	
 		if(input.length!=0){
@@ -156,11 +159,8 @@ var Surku = function (user_config){
 				var mutations=this.rint(this.config.maxMutations-this.config.minMutations)+this.config.minMutations
 			else
 				var mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
-			
-			this.debugPrint('Running mutate with seed: '+self.config.seed+"\n",1)
-			
-			this.debugPrint('Running with n mutations: '+mutations+"\n",1)
 			while(mutations--){
+
 					var index=0;
 					if(input.length>this.config.chunkSize)
 						index=this.rint(input.length-this.config.chunkSize)
@@ -177,6 +177,8 @@ var Surku = function (user_config){
 						this.debugPrint('Success\n',1)
 						input=input.substring(0,index)+result+input.substring(index+this.config.chunkSize)			
 					}
+					this.debugPrint('File size: '+input.length+'\n',1)
+					
 			}
 			return input
 		}
@@ -188,6 +190,10 @@ var Surku = function (user_config){
 	return this
 }	
 
+//
+//Commandline interface wrapper.
+//
+//TODO: Investigate if file could be read as a Stream and mutated with just a single chunk in memory.
 if(require.main===module){
 	var config=require('./cmd.js')
 	debugPrint= function(message,level){
@@ -199,8 +205,9 @@ if(require.main===module){
 	if(config.verbose>=5)
 		console.log(config)
 	var S=new Surku(config)
-
-	
+	if(config.randomizeWeights)
+		S.mutators.randomizeWeights()
+	var samples=fs.readdirSync(config.inputPath);
 	var sampleSelectorRandom=S.m.newMersenneTwister(S.seedBase.genrand_int31())
 	var output={}
 	var fileName=''
@@ -208,43 +215,30 @@ if(require.main===module){
 	if(config.outputName!==undefined){
 		fileName=config.outputName.split('%n')
 	}
-	if(config.inputPath){
-		var samples=fs.readdirSync(config.inputPath);
-		for(var x=0; x<config.count;x++){
-			var index=Math.floor(sampleSelectorRandom.genrand_real1()*samples.length)
-			var sample=samples[index]
-			debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
-			if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
-				x--
-				samples.splice(index,1)
-				if(samples.length==0){
-					console.log("Input folder doesn't contain any files")
-					process.exit(2)
-				}
-			}	
-			else{
-				output=S.generateTestCase(fs.readFileSync(config.inputPath+'/'+sample))
-				if(fileName=='')
-					console.log(output.toString())
-				else{
-					debugPrint('Output file: '+fileName.join(x)+'\n')
-					fs.writeFileSync(fileName.join(x))
-				}
+	for(var x=0; x<config.count;x++){
+		var index=Math.floor(sampleSelectorRandom.genrand_real1()*samples.length)
+		var sample=samples[index]
+		debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
+		if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
+			x--
+			samples.splice(index,1)
+			if(samples.length==0){
+				console.log("Input folder doesn't contain any files")
+				process.exit(2)
 			}
+		}	
+		else{
+			output=S.generateTestCase(fs.readFileSync(config.inputPath+'/'+sample))
+			if(fileName=='')
+				console.log(output.toString())
+			else{
+				debugPrint('Output file: '+fileName.join(x)+'\n')
+				debugPrint('Output file size: '+output.length+'\n')
 
+				fs.writeFileSync(fileName.join(x),output)
+			}
 		}
-	}
-	else{
-		var input=fs.readFileSync(config.inputFile)
-		for(var x=0; x<config.count;x++){
-				output=S.generateTestCase(input)
-				if(fileName=='')
-					console.log(output.toString())
-				else{
-					debugPrint('Output file: '+fileName.join(x)+'\n')
-					fs.writeFileSync(fileName.join(x),output)
-				}
-		}
+
 	}
 }
 else{

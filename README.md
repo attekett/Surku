@@ -131,21 +131,25 @@ Available default mutators: (Note: See more specific funtionality of each mutato
 	freqString:
 		{mutatorFunction:freqString,weight:10},
 	regExpTrick:
-		{mutatorFunction:regExpTrick,weight:3},
+		{mutatorFunction:regExpTrick,weight:10},
+	strStuttr:
+		{mutatorFunction:strStuttr,weight:3},
 	lineCopy:
-		{mutatorFunction:lineCopy,weight:3},
+		{mutatorFunction:lineCopy,weight:2},
 	lineSwap:
-		{mutatorFunction:lineSwap,weight:4},
+		{mutatorFunction:lineSwap,weight:3},
 	lineMove:
-		{mutatorFunction:lineMove,weight:4},
+		{mutatorFunction:lineMove,weight:3},
 	lineRepeat:
-		{mutatorFunction:lineRepeat,weight:5},
+		{mutatorFunction:lineRepeat,weight:3},
 	wordCopy:
-		{mutatorFunction:wordCopy,weight:2}, 
+		{mutatorFunction:wordCopy,weight:5},
+	wordRemove:
+		{mutatorFunction:wordRemove,weight:5}, 
 	mutateNumber:
-		{mutatorFunction:mutateNumber,weight:10},
+		{mutatorFunction:mutateNumber,weight:15},
 	replaceXMLValuePair:
-		{mutatorFunction:replaceXMLValuePair,weight:4},	
+		{mutatorFunction:replaceXMLValuePair,weight:20},	
 	strCopyShort:
 		{mutatorFunction:strCopyShort,weight:2},
 	strCopyLong:
@@ -157,15 +161,19 @@ Available default mutators: (Note: See more specific funtionality of each mutato
 	insertMultipleChar:
 		{mutatorFunction:insertMultipleChar,weight:2},
 	replaceSingleChar:
-		{mutatorFunction:replaceSingleChar,weight:2},	
+		{mutatorFunction:replaceSingleChar,weight:5},	
 	replaceMultipleChar:
-		{mutatorFunction:replaceMultipleChar,weight:1},
+		{mutatorFunction:replaceMultipleChar,weight:3},
 	repeatChar:
-		{mutatorFunction:repeatChar,weight:2},
+		{mutatorFunction:repeatChar,weight:4},
 	repeatChars:
-		{mutatorFunction:repeatChars,weight:1},
+		{mutatorFunction:repeatChars,weight:3},
 	bitFlip:
-		{mutatorFunction:bitFlip,weight:4}
+		{mutatorFunction:bitFlip,weight:5},
+	pdfObjectMangle:
+		{mutatorFunction:pdfObjectMangle,weight:4},
+	xmlMutator:
+		{mutatorFunction:require('./xmlMutator.js'),weight:20}
 
 
 Add new mutators:(Note:  You must add the new mutator for every Surku instance you create, 

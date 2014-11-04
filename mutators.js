@@ -32,8 +32,9 @@ function findPlaces(str,depth,places){
 
 function getFrequent(nodes,length){
 	var returnObj={}
+	var min=1+this.wrint(5)
 	for(var node in nodes){	
-		if(nodes[node].places.length<2){
+		if(nodes[node].places.length<min){
 			length=length-nodes[node].places.length
 			delete nodes[node]
 		}
@@ -52,7 +53,7 @@ function getFrequent(nodes,length){
 //String mutators
 
 function lineCopy(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var lines=input.split('\n')
 	lines.splice(this.rint(lines.length),0,this.ra(lines))
@@ -60,11 +61,11 @@ function lineCopy(input,isString){
 }
 
 function lineRepeat(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var lines=input.split('\n')
 	var line=this.ra(lines)
-	var rounds=this.wrint();
+	var rounds=this.wrint(2000);
 	var lineChunk=''
 	while((rounds>0) || this.rint(3)){
 		rounds--
@@ -75,7 +76,7 @@ function lineRepeat(input,isString){
 }
 
 function lineSwap(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var lines=input.split('\n')
 	var index1=this.rint(lines.length)
@@ -88,7 +89,7 @@ function lineSwap(input,isString){
 }
 
 function lineMove(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var lines=input.split('\n')
 	lines.splice(this.rint(lines.length),0,lines.splice(this.rint(lines.length),1)[0])
@@ -103,6 +104,22 @@ function strCopyShort(input,isString){
 	var input_end=input.substring(where,input.length+1)
 	var what=input.substring(start,end)
 	return input_start+what+input_end
+}
+
+function strStuttr(input,isString){
+	var where=this.rint(input.length)
+	var start=this.rint(input.length)
+	var end=start+this.wrint(100)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where,input.length+1)
+	var what=input.substring(start,end)
+	var chunk=""
+	var rounds=this.wrint(2000);
+	while((rounds>0) || this.rint(3)){
+		rounds--;
+		chunk+=what;
+	}
+	return input_start+what+input_end	
 }
 
 function strCopyLong(input,isString){
@@ -155,43 +172,60 @@ function replaceMultipleChar(input,isString){
 
 
 //TODO: Performance fixes.
-var replaceXMLValuePairRegExp=/\s\w+?=(((('|")[^\4]*?\4)?)|([^\s<\/>]+))+/g
+var replaceXMLValuePairRegExp=/\s\w+?([=\/])(((('|")[^\4]*?\4)?)|([^\s<\/>]+))+/g
+/*repCount=0;
+repFailCount=0;
+repTotal=0;*/
 function replaceXMLValuePair(input,isString){
-	if(!isString)
+	//console.log('replace - repTotal: '+repTotal+' repPass: '+repCount+ ' repFailCount: '+repFailCount)
+	//repTotal++
+	if(!isString && this.rint(3))
 		return false
 	var self=this
 	var prob=input.match(replaceXMLValuePairRegExp)
 	if(prob != null){
 		prob=prob.length
 		return input.replace(replaceXMLValuePairRegExp,function(match){
-			var valuePair=match.split('=')
+			var valuePair=match.split(arguments[1])
+			var pass=false
 			var key=valuePair[0].trim()
 			var value=valuePair[1].trim()
 			if(key.length>0  && value.length>0){
-				self.storage.storeKeyValuePair([key,value],'XMLValuePairStorage')
-			}
-			if(!self.rint(prob) && key.length>0 ){
-				prob++;
 				var newValue=self.storage.getValueForKey(key,'XMLValuePairStorage')
-				if(newValue!=false)
-					value=newValue
-
-				return valuePair[0]+'='+value
+				self.storage.storeKeyValuePair([key,value],'XMLValuePairStorage')
+				if(newValue!=value){
+					pass=true;
+					value=newValue;
+				}
 			}
-			else
+			if(pass && !self.rint(prob)){
+				//repCount++;
+				prob++;
+				/*console.log('Mutate')
+				console.log('Replacing: '+match)
+				console.log('With: '+valuePair[0]+arguments[1]+value)
+				*/return valuePair[0]+arguments[1]+value
+			}
+			else{
+				//repFailCount++;
 				return match
+			}
 		})
 	}
 	return false
 }
 
 //TODO: Make this smarter!
-var regExpTrickRegExp=/((\().{1,20}(\))|(\[).{1,20}(\])|({).{1,20}(})|(\/).{1,20}(\/))/gm
+var regExpTrickRegExp=/((\().{1,20}?(\))|(\[).{1,20}?(\])|({).{1,20}?(})|(\/).{1,20}?(\/))/gm
 function regExpTrick(input,isString){
 	var self=this
-	if(!isString)
+	//console.log('Call')
+	if(!isString && this.rint(3)){
+		//console.log('Abort')
 		return false
+	}
 	return input.replace(regExpTrickRegExp,function(match){
+		//console.log('Matches:'+ match)
 		var what=''
 		if(arguments[2])	
 			what='()'
@@ -201,12 +235,27 @@ function regExpTrick(input,isString){
 			what='{}'
 		else
 			what='//'
-		self.storage.storeKeyValuePair([what,match],'regExpTrickStorage')
-		if(!self.rint(10) && what.length>0 ){
+		//console.log('Delimeter: '+what)
+		if(!self.rint(3) && what.length>0 ){
+
+			var rounds=self.wrint(100)
 			var newValue=self.storage.getValueForKey(what,'regExpTrickStorage')
-			if(newValue!=false)
+			if(newValue!=false){
+				if(what=='//'){
+					newValue='/'+newValue.replace(/\//g,'')
+					while(rounds--){
+						var value=self.storage.getValueForKey(what,'regExpTrickStorage').replace(/\//g,'')
+						if(value && value!=""){
+							newValue+='/'+value
+						}
+					}
+					
+					return newValue+'/'
+				}
 				return newValue
+			}
 		}
+		self.storage.storeKeyValuePair([what,match],'regExpTrickStorage')
 		return match
 	})
 }
@@ -237,7 +286,10 @@ function repeatChars(input,isString){
 }
 
 //TODO: Verify behavior with different data chunks.
+var callCount=0;
+var failCount=0;
 function freqString(input, isString){
+callCount++;
 var depth=0;
 var MAX=64
 var MIN=10
@@ -250,11 +302,13 @@ while(depth<MAX){
 	var nodes=findPlaces(input,depth,places);
 	var node =getFrequent.call(this,nodes, places.length)
 	if(!node.hasOwnProperty('places') || node.places.length<=2){
-		if(taken.length<2)
+		if(taken.length<3){
+			failCount++;
 			return false;
+		}
 		break;
 	}
-	if(taken.length>MIN && !this.rint(10))
+	if(taken.length>MIN && !this.rint(2))
 		break;
 	places=node.places
 	depth++;
@@ -272,8 +326,8 @@ var newValue=this.storage.getValueForKey(taken,'freqStringStorage')
 if(newValue!=false && this.rint(3) && newValue!=string){
 	return input.substring(0,places[placesIndex])+newValue+input.substring(places[secondPlacesIndex],input.length)
 }
-var rounds=5
-if(this.storage.valueStorages.hasOwnProperty('freqStringStorage')){
+var rounds=2
+if(this.storage.valueStorages.hasOwnProperty('freqStringStorage') && this.rint(3)){
 	while(rounds--){
 		var storageIndex=this.rint(this.storage.valueStorages['freqStringStorage'][0].length)
 		var inputIndex=input.indexOf(this.storage.valueStorages['freqStringStorage'][0][storageIndex])
@@ -285,8 +339,16 @@ if(this.storage.valueStorages.hasOwnProperty('freqStringStorage')){
 		}	
 	}
 }
-return input.substring(0,places[placesIndex])+input.substring(places[place2],places[place2+1])+input.substring(places[secondPlacesIndex],input.length)
-
+if(this.rint(5)){
+	return input.substring(0,places[placesIndex])+input.substring(places[place2],places[place2+1])+input.substring(places[secondPlacesIndex],input.length)
+}else{
+	var rounds=this.wrint(100)+1
+	var returnString=input.substring(0,places[placesIndex])
+	while(rounds--){
+		returnString+=input.substring(places[place2],places[place2+1])
+	}
+	return returnString+input.substring(places[secondPlacesIndex],input.length)
+}
 
 }
 
@@ -294,7 +356,7 @@ return input.substring(0,places[placesIndex])+input.substring(places[place2],pla
 //TODO: Is there a way to do this faster?
 var mutateNumberRegExp=/((\d+\.?\d+)|\d)/g
 function mutateNumber(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var matchCount=0
 	var self=this
@@ -302,18 +364,19 @@ function mutateNumber(input,isString){
 	if(count == null)
 		return false	
 	else{
-		var replaceAt=this.rint(count)	
+		var replaceAt=this.rint(count.length)
 		return input.replace(mutateNumberRegExp, function(match) {
 			matchCount++
-		    if(matchCount==replaceAt)
+		    if(matchCount==replaceAt){
 		    	return randoms.randomNumber.call(self)
+		    }
 		    return match;
     	});
     }
 }
 
 function wordCopy(input,isString){
-	if(!isString)
+	if(!isString && this.rint(3))
 		return false
 	var wordList=input.split(' ')
 	var wordIndex=this.rint(wordList.length)
@@ -323,7 +386,15 @@ function wordCopy(input,isString){
 		howMany--;
 		word.push(word[0])
 	}
-	wordList.splice(this.rint(wordList.len),0,word.join(' '))
+	wordList.splice(this.rint(wordList.length),0,word.join(' '))
+	return wordList.join(' ')
+}
+
+function wordRemove(input,isString){
+	if(!isString && this.rint(3))
+		return false
+	var wordList=input.split(' ')
+	wordList.splice(this.rint(wordList.length),this.wrint(10))
 	return wordList.join(' ')
 }
 
@@ -331,6 +402,43 @@ function bitFlip(input,isString){
 	var where=this.rint(input.length)
 	return input.substring(0,where)+String.fromCharCode((input.charCodeAt(where)) ^ (Math.pow(2,this.rint(8))))+input.substring(where+1,input.length+1)
 }
+
+function pdfObjectMangle(input, isString){
+	var objBegins=[]
+	var objBeginReg=/\d+ \d+ obj/g
+	var cur;
+	while(cur = objBeginReg.exec(input)){
+		objBegins.push(cur.index+cur[0].length)
+	}
+
+	var objEnds=[]
+	var objEndReg=/endobj/g
+	while(cur = objEndReg.exec(input)){
+		objEnds.push(cur.index)
+	}
+
+	while(objBegins[0]>objEnds[0]){
+		objEnds.shift()
+	}
+
+	if(objBegins.length>1 && objEnds.length>1){
+
+		var index=Math.floor(Math.random()*objEnds.length)
+	
+		//console.log(input.substring(objBegins[index],objEnds[index]))
+		this.storage.storeKeyValuePair(['obj',input.substring(objBegins[index],objEnds[index])],'pdfStorage')
+		var newValue= this.storage.getValueForKey('obj','pdfStorage')
+		if(newValue!=false){
+			return input.substring(0,objBegins[index])+newValue+input.substring(objEnds[index],input.length)
+		}
+		else
+			return false
+	}
+	else 
+		return false
+}
+
+
 
 function calcMutatorWeights(mutators){
 	var weightedMutatorsList=new Array()
@@ -343,11 +451,14 @@ function calcMutatorWeights(mutators){
 	return weightedMutatorsList
 }
 
+
 var mutators={
 	freqString:
 		{mutatorFunction:freqString,weight:10},
 	regExpTrick:
-		{mutatorFunction:regExpTrick,weight:3},
+		{mutatorFunction:regExpTrick,weight:10},
+	strStuttr:
+		{mutatorFunction:strStuttr,weight:3},
 	lineCopy:
 		{mutatorFunction:lineCopy,weight:2},
 	lineSwap:
@@ -355,13 +466,15 @@ var mutators={
 	lineMove:
 		{mutatorFunction:lineMove,weight:3},
 	lineRepeat:
-		{mutatorFunction:lineRepeat,weight:2},
+		{mutatorFunction:lineRepeat,weight:3},
 	wordCopy:
-		{mutatorFunction:wordCopy,weight:2}, 
+		{mutatorFunction:wordCopy,weight:5},
+	wordRemove:
+		{mutatorFunction:wordRemove,weight:5}, 
 	mutateNumber:
-		{mutatorFunction:mutateNumber,weight:10},
+		{mutatorFunction:mutateNumber,weight:15},
 	replaceXMLValuePair:
-		{mutatorFunction:replaceXMLValuePair,weight:10},	
+		{mutatorFunction:replaceXMLValuePair,weight:20},	
 	strCopyShort:
 		{mutatorFunction:strCopyShort,weight:2},
 	strCopyLong:
@@ -373,18 +486,20 @@ var mutators={
 	insertMultipleChar:
 		{mutatorFunction:insertMultipleChar,weight:2},
 	replaceSingleChar:
-		{mutatorFunction:replaceSingleChar,weight:2},	
+		{mutatorFunction:replaceSingleChar,weight:5},	
 	replaceMultipleChar:
-		{mutatorFunction:replaceMultipleChar,weight:1},
+		{mutatorFunction:replaceMultipleChar,weight:3},
 	repeatChar:
-		{mutatorFunction:repeatChar,weight:2},
+		{mutatorFunction:repeatChar,weight:4},
 	repeatChars:
-		{mutatorFunction:repeatChars,weight:1},
+		{mutatorFunction:repeatChars,weight:3},
 	bitFlip:
-		{mutatorFunction:bitFlip,weight:4}
+		{mutatorFunction:bitFlip,weight:5},
+	pdfObjectMangle:
+		{mutatorFunction:pdfObjectMangle,weight:4}
 }
 
-mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:10}
+mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}
 
 var mutatorList=calcMutatorWeights(mutators)
 
