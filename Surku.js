@@ -1,25 +1,25 @@
 var fs 		 = require('fs');
 var Surku = function (user_config){
 	this.m 		  = require('./mersenne-twister.js')
-	this.mutators = require('./mutators.js')
+	var mutators = require('./mutators.js')
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
-	this.config={
-		maxMutations:5,
+	var config={
+		maxMutations:10,
 		minMutations:1,
-		chunkSize:3000,
+		chunkSize:2000,
 		useOnly: undefined,
 		seed: undefined,
 		verbose: undefined
 	}
-
+	this.config=config
 	if(user_config !== undefined){
 		for(var key in user_config)
 			this.config[key]=user_config[key]
 	}
 	
 	if(this.config.useOnly!==undefined && this.config.useOnly instanceof Array){
-		this.mutators.useOnlyMutators(this.config.useOnly)
+		mutators.useOnlyMutators(this.config.useOnly)
 	}
 
 	this.ra=function (array){
@@ -70,17 +70,7 @@ var Surku = function (user_config){
 		this.rint=self.rint
 
 		this.r=self.m.newMersenneTwister(seedBase.genrand_int31())
-		if(input instanceof Buffer){
-			input=new Buffer((mutate.call(this,input.toString('binary'))),'binary')
-			return input
-		}
-		else if(input instanceof String || typeof(input)=='string'){
-			return mutate.call(this,input)
-		}
-		else{
-			console.log("Wrong input format. Must be String or Buffer!")
-		}
-		
+		return mutate.call(this,input)
 	}
 	
 	//
@@ -90,46 +80,52 @@ var Surku = function (user_config){
 		storage:{
 			where:[
 				[key1,key2],
-				[[key1value1,key1value2],key2valueq]
+				[[key1value1,key1value2],[key2value2]]
 			]	
 		} 
 	*/
 	this.storage={
-		maxKeys:200,
-		maxValues:20,
+		maxKeys:100,
+		maxValues:30,
 		valueStorages:{},
 		storeKeyValuePair:function(keyValueArray,where){
 			//Check if valueStorage name was provided
-			if(where===undefined)
-				where='defaultStorage'
-			//If valueStorage named with value of where exists use it, else create empty one.
-			if(this.valueStorages.hasOwnProperty(where))
-				var storageObject=this.valueStorages[where]
-			else{
-				this.valueStorages[where]=[[],[]]
-				var storageObject=this.valueStorages[where]
-			}
-			//Check that keyValueArray is an Array with length 2 so that storage will stay in sync.	
-			if((keyValueArray instanceof Array) && keyValueArray.length==2){
-				//Look from valueStorage[where] if key exists, if it does save into keys index on values array.
-				//Check that size of storage is not exceeded from unshift return value.
-				var index=storageObject[0].indexOf(keyValueArray[0])
-				if(index!=-1){
-					if(storageObject[1][index].unshift(keyValueArray[1])>this.maxValues){
-						storageObject[1][index].pop()
+			var key=keyValueArray[0]
+			var value=keyValueArray[1]
+			//if(process.memoryUsage().heapUsed<700*1024*1024){
+				if(where===undefined)
+					where='defaultStorage'
+				//If valueStorage named with value of where exists use it, else create empty one.
+				if(this.valueStorages.hasOwnProperty(where))
+					var storageObject=this.valueStorages[where]
+				else{
+					this.valueStorages[where]=[[],[]]
+					var storageObject=this.valueStorages[where]
+				}
+				//Check that keyValueArray is an Array with length 2 so that storage will stay in sync.	
+				if((keyValueArray instanceof Array) && keyValueArray.length==2){
+					//Look from valueStorage[where] if key exists, if it does save into keys index on values array.
+					//Check that size of storage is not exceeded from unshift return value.
+					var index=storageObject[0].indexOf(key)
+					if(index!=-1){
+						if(storageObject[1][index].unshift(value)>this.maxValues){
+							storageObject[1][index].pop()
+						}
+					}
+					else{
+						if(storageObject[0].unshift(key)>this.maxKeys){
+							storageObject[0].pop();
+							storageObject[1].pop();
+						}
+						storageObject[1].unshift([value])
 					}
 				}
 				else{
-					if(storageObject[0].unshift(keyValueArray[0])>this.maxKeys){
-						storageObject[0].pop();
-						storageObject[1].pop();
-					}
-					storageObject[1].unshift([keyValueArray[1]])
+					console.log('Invalid input to storeKeyValue. Must be Array [key,value] got '+keyValueArray)
 				}
-			}
-			else{
-				console.log('Invalid input to storeKeyValue. Must be Array [key,value] got '+keyValueArray)
-			}
+			/*}else{
+				console.log('Memory consumption high. Skipping saves to storage.')
+			}*/
 		},
 		getValueForKey:function(key,where){
 			if(where===undefined)
@@ -146,6 +142,21 @@ var Surku = function (user_config){
 		}
 	}
 
+	function splitToChunks(input){
+		if(input.length>config.chunkSize){
+			var inputLength=input.length;
+			var index=0;
+			var count=0;
+			var tmp=[]
+			for(; index<inputLength-config.chunkSize;count++)
+				tmp[count]=input.slice(index,index+=(Math.floor(Math.random()*500)+1))
+			tmp[count]=input.slice(index,inputLength)
+			return tmp
+		}
+		else{
+			return [input]
+		}
+	}
 	//
 	//mutate(input)
 	//input: Data to be mutated
@@ -154,33 +165,83 @@ var Surku = function (user_config){
 	//Takes data chunk size of config.chunkSize from random location inside the input data and applies mutators.
 	//
 	function mutate(input){	
+		var string=true;
+		if(input instanceof Buffer){
+			string=false
+			input=input.toString('binary')
+		}
+		else if(!(input instanceof String || typeof(input)=='string')){
+			console.log("Wrong input format. Must be String or Buffer!")
+			return input	
+		}
+		var inputLength=input.length
+		input=splitToChunks(input)
+		//console.log('Chunks: '+input.length)
 		if(input.length!=0){
+			var mutations
 			if(this.config.maxMutations!==undefined)	
-				var mutations=this.rint(this.config.maxMutations-this.config.minMutations)+this.config.minMutations
+				mutations=this.rint(this.config.maxMutations-this.config.minMutations)+this.config.minMutations
 			else
-				var mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
+				mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
+			var index;
+			var mutator;
+			var chunk;
+			var isString;	
+			var result=false;
+			this.debugPrint('Start: '+process.memoryUsage().heapUsed+'\n',1)
 			while(mutations--){
-
-					var index=0;
-					if(input.length>this.config.chunkSize)
-						index=this.rint(input.length-this.config.chunkSize)
-					var mutator=this.ra(this.mutators.mutators)
-					var chunk=input.substring(index,index+this.config.chunkSize)
-					var isString=!stringCheckRegExp.test(chunk)
-					this.debugPrint('Mutator: '+mutator.name+' - ',1)
-					result=(mutator.call(this,chunk,isString))
+					this.debugPrint('Round: '+process.memoryUsage().heapUsed+'\n',1)
+					index=0;
+					if(input.length>1){
+						index=this.rint(input.length)
+						var length=0
+						var chunks=0
+						while(length<config.chunkSize){
+							length+=input[index+chunks].length
+							chunks++
+							if((index+chunks)==input.length){
+								break;
+							}
+						}
+						chunk=input.splice(index,chunks).join('')
+					}
+					else{
+						chunk=input.join('')
+					}
+					isString=!stringCheckRegExp.test(chunk)
+					var tryCount=10
+					while(tryCount--){
+					mutator=this.ra(mutators.mutators)
+					this.debugPrint('Mutator: '+mutator.mutatorFunction.name+' - ',1)
+					if(!mutator.stringOnly || (mutator.stringOnly && isString) || !this.rint(10)){
+						result=mutator.mutatorFunction.call(this,chunk,isString)
+						if(result===false)
+							this.debugPrint('Fail\n',1)
+					}
+					else{
+						this.debugPrint('Fail\n',1)
+						result=false
+					}
+					if(result!==false)
+						break;
+					}
 					if(result === false){
 						this.debugPrint('Fail\n',1)
 						mutations++
 					}
-					else{
+					else{ 
 						this.debugPrint('Success\n',1)
-						input=input.substring(0,index)+result+input.substring(index+this.config.chunkSize)			
+						Array.prototype.splice.apply(input,[index,0].concat(splitToChunks(result)))
 					}
-					this.debugPrint('File size: '+input.length+'\n',1)
+					//this.debugPrint('File size: '+input.length+'\n',1)
 					
 			}
-			return input
+			this.debugPrint('End: '+process.memoryUsage().heapUsed+'\n',1)
+			input=input.join('')
+			if(string)
+				return input
+			else
+				return (new Buffer(input,'binary'))
 		}
 		else{
 			console.error('Mutate Error: Zero-sized input.');
@@ -207,7 +268,13 @@ if(require.main===module){
 	var S=new Surku(config)
 	if(config.randomizeWeights)
 		S.mutators.randomizeWeights()
-	var samples=fs.readdirSync(config.inputPath);
+	if(config.inputPath)
+		var samples=fs.readdirSync(config.inputPath);
+	else if(config.inputFile){
+		config.inputPath=""
+		var samples=[config.inputFile]
+	}
+
 	var sampleSelectorRandom=S.m.newMersenneTwister(S.seedBase.genrand_int31())
 	var output={}
 	var fileName=''

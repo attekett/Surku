@@ -52,18 +52,18 @@ function getFrequent(nodes,length){
 
 //String mutators
 
-function lineCopy(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function lineCopy(input){
 	var lines=input.split('\n')
+	if(lines.length<3)
+		return false
 	lines.splice(this.rint(lines.length),0,this.ra(lines))
 	return (lines.join('\n'))
 }
 
-function lineRepeat(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function lineRepeat(input){
 	var lines=input.split('\n')
+	if(lines.length<3)
+		return false
 	var line=this.ra(lines)
 	var rounds=this.wrint(2000);
 	var lineChunk=''
@@ -75,10 +75,10 @@ function lineRepeat(input,isString){
 	return (lines.join('\n'))
 }
 
-function lineSwap(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function lineSwap(input){
 	var lines=input.split('\n')
+	if(lines.length<3)
+		return false
 	var index1=this.rint(lines.length)
 	var index2=this.rint(lines.length)
 	var line1=lines[index1]
@@ -88,15 +88,15 @@ function lineSwap(input,isString){
 
 }
 
-function lineMove(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function lineMove(input){
 	var lines=input.split('\n')
+	if(lines.length<3)
+		return false
 	lines.splice(this.rint(lines.length),0,lines.splice(this.rint(lines.length),1)[0])
 	return (lines.join('\n'))
 }
 
-function strCopyShort(input,isString){
+function strCopyShort(input){
 	var where=this.rint(input.length)
 	var start=this.rint(input.length)
 	var end=start+this.wrint(100)
@@ -106,7 +106,7 @@ function strCopyShort(input,isString){
 	return input_start+what+input_end
 }
 
-function strStuttr(input,isString){
+function strStuttr(input){
 	var where=this.rint(input.length)
 	var start=this.rint(input.length)
 	var end=start+this.wrint(100)
@@ -122,7 +122,7 @@ function strStuttr(input,isString){
 	return input_start+what+input_end	
 }
 
-function strCopyLong(input,isString){
+function strCopyLong(input){
 	var where=this.rint(input.length)
 	var start=this.rint(input.length)
 	var end=start+this.rint(Math.floor(input.length*this.r.genrand_real1()))
@@ -132,17 +132,23 @@ function strCopyLong(input,isString){
 	return input_start+what+input_end
 }
 
-function strRemove(input,isString){
+function strRemove(input){
 	var where=this.rint(input.length)
-	return input.substring(0,where)+input.substring((where+this.wrint(1000-where)),input.length+1)	
+	var input_start=input.substring(0,where)
+	var input_end=input.substring((where+this.wrint(1000-where)),input.length+1)	
+
+	return input_start+input_end
 }
 
-function insertSingleChar(input,isString){
+function insertSingleChar(input){
 	var where=this.rint(input.length)
-	return input.substring(0,where)+String.fromCharCode(this.rint(256))+input.substring(where,input.length+1)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where+1,input.length+1)
+
+	return input_start+String.fromCharCode(this.rint(256))+input_end
 }
 
-function insertMultipleChar(input,isString){
+function insertMultipleChar(input){
 	var amount=this.rint(10)+1
 	var what=''
 	while((amount>0) || this.rint(3)){
@@ -150,15 +156,21 @@ function insertMultipleChar(input,isString){
 		what+=String.fromCharCode(this.rint(256))
 	}
 	var where=this.rint(input.length)
-	return input.substring(0,where)+what+input.substring(where,input.length+1)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where+what.length,input.length+1)
+	
+	return input_start+what+input_end
 }
 
-function replaceSingleChar(input,isString){
+function replaceSingleChar(input){
 	var where=this.rint(input.length)
-	return input.substring(0,where)+String.fromCharCode(this.rint(256))+input.substring(where+1,input.length+1)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where+1,input.length+1)
+	
+	return input_start+String.fromCharCode(this.rint(256))+input_end
 }
 
-function replaceMultipleChar(input,isString){
+function replaceMultipleChar(input){
 	var amount=this.wrint()
 	var what=''
 	while((amount>0) || this.rint(3)){
@@ -166,7 +178,10 @@ function replaceMultipleChar(input,isString){
 		what+=String.fromCharCode(this.rint(256))
 	}
 	var where=this.rint(input.length)
-	return input.substring(0,where)+what+input.substring(where+amount,input.length+1)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where+amount,input.length+1)
+	
+	return input_start+what+input_end
 }
 
 
@@ -176,16 +191,16 @@ var replaceXMLValuePairRegExp=/\s\w+?([=\/])(((('|")[^\4]*?\4)?)|([^\s<\/>]+))+/
 /*repCount=0;
 repFailCount=0;
 repTotal=0;*/
-function replaceXMLValuePair(input,isString){
+function replaceXMLValuePair(input){
 	//console.log('replace - repTotal: '+repTotal+' repPass: '+repCount+ ' repFailCount: '+repFailCount)
 	//repTotal++
-	if(!isString && this.rint(3))
+	if(input.indexOf('=')==-1)
 		return false
 	var self=this
 	var prob=input.match(replaceXMLValuePairRegExp)
 	if(prob != null){
 		prob=prob.length
-		return input.replace(replaceXMLValuePairRegExp,function(match){
+		var result=input.replace(replaceXMLValuePairRegExp,function(match){
 			var valuePair=match.split(arguments[1])
 			var pass=false
 			var key=valuePair[0].trim()
@@ -211,21 +226,17 @@ function replaceXMLValuePair(input,isString){
 				return match
 			}
 		})
+		return result
 	}
 	return false
 }
 
 //TODO: Make this smarter!
 var regExpTrickRegExp=/((\().{1,20}?(\))|(\[).{1,20}?(\])|({).{1,20}?(})|(\/).{1,20}?(\/))/gm
-function regExpTrick(input,isString){
+function regExpTrick(input){
 	var self=this
-	//console.log('Call')
-	if(!isString && this.rint(3)){
-		//console.log('Abort')
-		return false
-	}
-	return input.replace(regExpTrickRegExp,function(match){
-		//console.log('Matches:'+ match)
+	var result=input.replace(regExpTrickRegExp,function(match){
+		//console.log('Matches:'+ (typeof match))
 		var what=''
 		if(arguments[2])	
 			what='()'
@@ -258,9 +269,10 @@ function regExpTrick(input,isString){
 		self.storage.storeKeyValuePair([what,match],'regExpTrickStorage')
 		return match
 	})
+	return result
 }
 
-function repeatChar(input,isString){
+function repeatChar(input){
 	var index=this.rint(input.length)
 	var count=this.wrint()
 	var what=input.charAt(index)
@@ -272,7 +284,7 @@ function repeatChar(input,isString){
 	return input.substring(0,index)+string+input.substring(index)
 }
 
-function repeatChars(input,isString){
+function repeatChars(input){
 	var index=this.rint(input.length)
 	var count=this.wrint(100)
 	var length=this.wrint(100)
@@ -288,7 +300,7 @@ function repeatChars(input,isString){
 //TODO: Verify behavior with different data chunks.
 var callCount=0;
 var failCount=0;
-function freqString(input, isString){
+function freqString(input){
 callCount++;
 var depth=0;
 var MAX=64
@@ -316,9 +328,9 @@ while(depth<MAX){
 }
 var secondPlacesIndex=this.rint(places.length-1)+1
 var placesIndex=this.rint((secondPlacesIndex-1))
-
 var place2=this.rint(places.length-1)
-var string=input.substring(places[placesIndex],places[secondPlacesIndex])
+
+var string=input.substring(places[placesIndex],places[placesIndex+1])
 if(taken.length>=2 && string.length>taken.length){
 	this.storage.storeKeyValuePair([taken,string],'freqStringStorage')
 }
@@ -355,9 +367,7 @@ if(this.rint(5)){
 
 //TODO: Is there a way to do this faster?
 var mutateNumberRegExp=/((\d+\.?\d+)|\d)/g
-function mutateNumber(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function mutateNumber(input){
 	var matchCount=0
 	var self=this
 	var count=input.match(mutateNumberRegExp)
@@ -375,10 +385,10 @@ function mutateNumber(input,isString){
     }
 }
 
-function wordCopy(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function wordCopy(input){
 	var wordList=input.split(' ')
+	if(wordList.length<3)
+		return false
 	var wordIndex=this.rint(wordList.length)
 	var word=[wordList[wordIndex]]
 	var howMany=this.wrint()
@@ -387,23 +397,27 @@ function wordCopy(input,isString){
 		word.push(word[0])
 	}
 	wordList.splice(this.rint(wordList.length),0,word.join(' '))
-	return wordList.join(' ')
+	var result=wordList.join(' ')
+	return result
 }
 
-function wordRemove(input,isString){
-	if(!isString && this.rint(3))
-		return false
+function wordRemove(input){
 	var wordList=input.split(' ')
+	if(wordList.length<3)
+		return false
 	wordList.splice(this.rint(wordList.length),this.wrint(10))
-	return wordList.join(' ')
+	var result=wordList.join(' ')
+	return result
 }
 
-function bitFlip(input,isString){
+function bitFlip(input){
 	var where=this.rint(input.length)
-	return input.substring(0,where)+String.fromCharCode((input.charCodeAt(where)) ^ (Math.pow(2,this.rint(8))))+input.substring(where+1,input.length+1)
+	var input_start=input.substring(0,where)
+	var input_end=input.substring(where+1,input.length+1)
+	return input_start+String.fromCharCode((input.charCodeAt(where)) ^ (Math.pow(2,this.rint(8))))+input_end
 }
 
-function pdfObjectMangle(input, isString){
+function pdfObjectMangle(input){
 	var objBegins=[]
 	var objBeginReg=/\d+ \d+ obj/g
 	var cur;
@@ -445,7 +459,7 @@ function calcMutatorWeights(mutators){
 	for(var mutator in mutators){
 		var weight=mutators[mutator].weight
 		while(weight--){
-			weightedMutatorsList.push(mutators[mutator].mutatorFunction)
+			weightedMutatorsList.push(mutators[mutator])
 		}
 	}
 	return weightedMutatorsList
@@ -454,49 +468,49 @@ function calcMutatorWeights(mutators){
 
 var mutators={
 	freqString:
-		{mutatorFunction:freqString,weight:10},
+		{mutatorFunction:freqString,weight:10,stringOnly:false},
 	regExpTrick:
-		{mutatorFunction:regExpTrick,weight:10},
+		{mutatorFunction:regExpTrick,weight:10,stringOnly:false},
 	strStuttr:
-		{mutatorFunction:strStuttr,weight:3},
+		{mutatorFunction:strStuttr,weight:3,stringOnly:false},
 	lineCopy:
-		{mutatorFunction:lineCopy,weight:2},
+		{mutatorFunction:lineCopy,weight:2,stringOnly:true},
 	lineSwap:
-		{mutatorFunction:lineSwap,weight:3},
+		{mutatorFunction:lineSwap,weight:3,stringOnly:true},
 	lineMove:
-		{mutatorFunction:lineMove,weight:3},
+		{mutatorFunction:lineMove,weight:3,stringOnly:true},
 	lineRepeat:
-		{mutatorFunction:lineRepeat,weight:3},
+		{mutatorFunction:lineRepeat,weight:3,stringOnly:true},
 	wordCopy:
-		{mutatorFunction:wordCopy,weight:5},
+		{mutatorFunction:wordCopy,weight:5,stringOnly:true},
 	wordRemove:
-		{mutatorFunction:wordRemove,weight:5}, 
+		{mutatorFunction:wordRemove,weight:5,stringOnly:true}, 
 	mutateNumber:
-		{mutatorFunction:mutateNumber,weight:15},
+		{mutatorFunction:mutateNumber,weight:25,stringOnly:false},
 	replaceXMLValuePair:
-		{mutatorFunction:replaceXMLValuePair,weight:20},	
+		{mutatorFunction:replaceXMLValuePair,weight:20,stringOnly:true},	
 	strCopyShort:
-		{mutatorFunction:strCopyShort,weight:2},
+		{mutatorFunction:strCopyShort,weight:2,stringOnly:false},
 	strCopyLong:
-		{mutatorFunction:strCopyLong,weight:1},	
+		{mutatorFunction:strCopyLong,weight:1,stringOnly:false},	
 	strRemove:
-		{mutatorFunction:strRemove,weight:2},
+		{mutatorFunction:strRemove,weight:2,stringOnly:false},
 	insertSingleChar:
-		{mutatorFunction:insertSingleChar,weight:2},	
+		{mutatorFunction:insertSingleChar,weight:2,stringOnly:false},	
 	insertMultipleChar:
-		{mutatorFunction:insertMultipleChar,weight:2},
+		{mutatorFunction:insertMultipleChar,weight:2,stringOnly:false},
 	replaceSingleChar:
-		{mutatorFunction:replaceSingleChar,weight:5},	
+		{mutatorFunction:replaceSingleChar,weight:5,stringOnly:false},	
 	replaceMultipleChar:
-		{mutatorFunction:replaceMultipleChar,weight:3},
+		{mutatorFunction:replaceMultipleChar,weight:3,stringOnly:false},
 	repeatChar:
-		{mutatorFunction:repeatChar,weight:4},
+		{mutatorFunction:repeatChar,weight:4,stringOnly:false},
 	repeatChars:
-		{mutatorFunction:repeatChars,weight:3},
+		{mutatorFunction:repeatChars,weight:3,stringOnly:false},
 	bitFlip:
-		{mutatorFunction:bitFlip,weight:5},
+		{mutatorFunction:bitFlip,weight:5,stringOnly:false},
 	pdfObjectMangle:
-		{mutatorFunction:pdfObjectMangle,weight:4}
+		{mutatorFunction:pdfObjectMangle,weight:4,stringOnly:true}
 }
 
 mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}

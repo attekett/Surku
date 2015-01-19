@@ -182,9 +182,7 @@ var xmlMutators={
 
 var xmlMutatorList=calcMutatorWeights(xmlMutators)
 
-function mutateXML(input,isString){
-	if(!isString)
-		return false
+function mutateXML(input){
 	debugPrint(input)
 	var collection={}
 	var firstStartTag=input.search(/<\w/)
