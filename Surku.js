@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var fs 		 = require('fs');
 var Surku = function (user_config){
 	this.m 		  = require('./mersenne-twister.js')

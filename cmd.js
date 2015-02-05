@@ -134,7 +134,6 @@ function cmd(){
 		var resolvedPath=path.resolve(outputExpression)
 		var pathOnly=path.dirname(resolvedPath)
 		var baseName=path.basename(resolvedPath)
-		console.log("Output directory: "+pathOnly)
 		if(!fs.existsSync(pathOnly)){
 			console.log('Output path does not exist.')
 			process.exit(2)

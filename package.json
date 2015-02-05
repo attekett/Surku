@@ -1,7 +1,7 @@
 {
   "name": "surku",
   "description": "A mutation-based general purpose fuzzer.",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "main": "Surku.js",
   "bin": { "surku": "Surku.js" },
   "repository" : {
