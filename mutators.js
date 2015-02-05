@@ -472,45 +472,45 @@ var mutators={
 	regExpTrick:
 		{mutatorFunction:regExpTrick,weight:10,stringOnly:false},
 	strStuttr:
-		{mutatorFunction:strStuttr,weight:3,stringOnly:false},
+		{mutatorFunction:strStuttr,weight:12,stringOnly:false},
 	lineCopy:
-		{mutatorFunction:lineCopy,weight:2,stringOnly:true},
+		{mutatorFunction:lineCopy,weight:5,stringOnly:true},
 	lineSwap:
-		{mutatorFunction:lineSwap,weight:3,stringOnly:true},
+		{mutatorFunction:lineSwap,weight:5,stringOnly:true},
 	lineMove:
-		{mutatorFunction:lineMove,weight:3,stringOnly:true},
+		{mutatorFunction:lineMove,weight:5,stringOnly:true},
 	lineRepeat:
-		{mutatorFunction:lineRepeat,weight:3,stringOnly:true},
+		{mutatorFunction:lineRepeat,weight:5,stringOnly:true},
 	wordCopy:
 		{mutatorFunction:wordCopy,weight:5,stringOnly:true},
 	wordRemove:
 		{mutatorFunction:wordRemove,weight:5,stringOnly:true}, 
 	mutateNumber:
-		{mutatorFunction:mutateNumber,weight:25,stringOnly:false},
+		{mutatorFunction:mutateNumber,weight:10,stringOnly:false},
 	replaceXMLValuePair:
-		{mutatorFunction:replaceXMLValuePair,weight:20,stringOnly:true},	
+		{mutatorFunction:replaceXMLValuePair,weight:5,stringOnly:true},	
 	strCopyShort:
-		{mutatorFunction:strCopyShort,weight:2,stringOnly:false},
+		{mutatorFunction:strCopyShort,weight:10,stringOnly:false},
 	strCopyLong:
-		{mutatorFunction:strCopyLong,weight:1,stringOnly:false},	
+		{mutatorFunction:strCopyLong,weight:5,stringOnly:false},	
 	strRemove:
-		{mutatorFunction:strRemove,weight:2,stringOnly:false},
+		{mutatorFunction:strRemove,weight:5,stringOnly:false},
 	insertSingleChar:
-		{mutatorFunction:insertSingleChar,weight:2,stringOnly:false},	
+		{mutatorFunction:insertSingleChar,weight:5,stringOnly:false},	
 	insertMultipleChar:
-		{mutatorFunction:insertMultipleChar,weight:2,stringOnly:false},
+		{mutatorFunction:insertMultipleChar,weight:10,stringOnly:false},
 	replaceSingleChar:
-		{mutatorFunction:replaceSingleChar,weight:5,stringOnly:false},	
+		{mutatorFunction:replaceSingleChar,weight:10,stringOnly:false},	
 	replaceMultipleChar:
-		{mutatorFunction:replaceMultipleChar,weight:3,stringOnly:false},
+		{mutatorFunction:replaceMultipleChar,weight:5,stringOnly:false},
 	repeatChar:
-		{mutatorFunction:repeatChar,weight:4,stringOnly:false},
+		{mutatorFunction:repeatChar,weight:10,stringOnly:false},
 	repeatChars:
-		{mutatorFunction:repeatChars,weight:3,stringOnly:false},
+		{mutatorFunction:repeatChars,weight:5,stringOnly:false},
 	bitFlip:
 		{mutatorFunction:bitFlip,weight:5,stringOnly:false},
 	pdfObjectMangle:
-		{mutatorFunction:pdfObjectMangle,weight:4,stringOnly:true}
+		{mutatorFunction:pdfObjectMangle,weight:5,stringOnly:true}
 }
 
 mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}

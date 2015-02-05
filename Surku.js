@@ -7,9 +7,9 @@ var Surku = function (user_config){
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
 	var config={
-		maxMutations:10,
+		maxMutations:30,
 		minMutations:1,
-		chunkSize:2000,
+		chunkSize:3000,
 		useOnly: undefined,
 		seed: undefined,
 		verbose: undefined
@@ -246,7 +246,7 @@ var Surku = function (user_config){
 				return (new Buffer(input,'binary'))
 		}
 		else{
-			console.error('Mutate Error: Zero-sized input.');
+			this.debugPrint('Mutate Error: Zero-sized input.');
 			return input
 		}
 	}
