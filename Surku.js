@@ -91,7 +91,7 @@ var Surku = function (user_config){
 		lastChunks:[],
 		maxKeys:100,
 		maxValues:30,
-		maxChunks:5,
+		maxChunks:10,
 		valueStorages:{},
 		storeKeyValuePair:function(keyValueArray,where){
 			//Check if valueStorage name was provided

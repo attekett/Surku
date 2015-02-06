@@ -50,6 +50,42 @@ function getFrequent(nodes,length){
 	return returnObj
 }
 
+var checkWhiteSpace=/\s/
+function collectTrigrams(input){
+	var trigrams=[[],[]]
+	var trigram=""
+	var index
+	var previousTrigram=""
+	for(var x=0; x<input.length-2;x++){
+		trigram=input[x]+input[x+1]+input[x+2]
+		if(!checkWhiteSpace.test(trigram)){
+			if(trigram!=previousTrigram){
+				index=trigrams[0].indexOf(trigram)
+				if(index!=-1){
+					trigrams[1][index].push(x)
+				}
+				else{
+					trigrams[0].push(trigram)
+					trigrams[1].push([x])
+				}
+			}
+		}
+		previousTrigram=trigram
+	}	
+
+	var filteredTrigrams={
+		data:input,
+		trigrams:[[],[]]	
+	}
+	for(var x=0; x<trigrams[0].length;x++){
+		if(trigrams[1][x].length>3){
+			filteredTrigrams.trigrams[0].push(trigrams[0][x])
+			filteredTrigrams.trigrams[1].push(trigrams[1][x])
+		}
+	}
+	return filteredTrigrams
+}
+
 //String mutators
 
 function lineCopy(input){
@@ -427,6 +463,35 @@ function chunkSwapper(input){
 	return newChunk.data
 }
 
+
+function chunkCollateTrigram(input){
+	var newChunk=this.storage.getChunk()
+	var inputTrigrams=collectTrigrams(input)
+	var chunkTrigrams=collectTrigrams(newChunk.data)
+	var commonTrigrams=[]
+	for(var x=0; x<inputTrigrams.trigrams[0].length; x++){
+		if(chunkTrigrams.trigrams[0].indexOf(inputTrigrams.trigrams[0][x])!=-1)
+			commonTrigrams.push(inputTrigrams.trigrams[0][x])
+	}
+	if(commonTrigrams.length==0)
+		return false
+	var trigram=this.ra(commonTrigrams)
+	var inputIndexes=inputTrigrams.trigrams[1][inputTrigrams.trigrams[0].indexOf(trigram)]
+	var chunkIndexes=chunkTrigrams.trigrams[1][chunkTrigrams.trigrams[0].indexOf(trigram)]
+	if(!trigram || !inputIndexes || !chunkIndexes){
+		console.log('Undefined?')
+		console.log(input)
+		console.log(newChunk.data)
+		console.log(trigram)
+		console.log(inputIndexes)
+		console.log(chunkIndexes)
+		return false
+	}
+	var inputIndexes=[this.ra(inputIndexes),this.ra(inputIndexes)].sort(function(a,b){return a>b})
+	var chunkIndexes=[this.ra(chunkIndexes),this.ra(chunkIndexes)].sort(function(a,b){return a>b})
+	return input.substring(0,inputIndexes[0])+newChunk.data.substring(chunkIndexes[0],chunkIndexes[1]-1)+input.substring(inputIndexes[1],input.length)
+}
+
 function pdfObjectMangle(input){
 	var objBegins=[]
 	var objBeginReg=/\d+ \d+ obj/g
@@ -481,6 +546,8 @@ var mutators={
 		{mutatorFunction:freqString,weight:20,stringOnly:false},
 	chunkSwapper:
 		{mutatorFunction:chunkSwapper,weight:2,stringOnly:false},
+	chunkCollateTrigram:
+		{mutatorFunction:chunkCollateTrigram,weight:2,stringOnly:false},
 	regExpTrick:
 		{mutatorFunction:regExpTrick,weight:10,stringOnly:false},
 	strStuttr:
@@ -525,7 +592,7 @@ var mutators={
 		{mutatorFunction:pdfObjectMangle,weight:5,stringOnly:true}
 }
 
-mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}
+//mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}
 
 var mutatorList=calcMutatorWeights(mutators)
 
