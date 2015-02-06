@@ -391,6 +391,9 @@ function wordCopy(input){
 		return false
 	var wordIndex=this.rint(wordList.length)
 	var word=[wordList[wordIndex]]
+	if(word[0].length>200){
+		return false
+	}
 	var howMany=this.wrint()
 	while((howMany>0) || this.rint(3)){
 		howMany--;
@@ -403,7 +406,7 @@ function wordCopy(input){
 
 function wordRemove(input){
 	var wordList=input.split(' ')
-	if(wordList.length<3)
+	if(wordList.length<(input.length/100))
 		return false
 	wordList.splice(this.rint(wordList.length),this.wrint(10))
 	var result=wordList.join(' ')
@@ -415,6 +418,13 @@ function bitFlip(input){
 	var input_start=input.substring(0,where)
 	var input_end=input.substring(where+1,input.length+1)
 	return input_start+String.fromCharCode((input.charCodeAt(where)) ^ (Math.pow(2,this.rint(8))))+input_end
+}
+
+function chunkSwapper(input){
+	var newChunk=this.storage.getChunk()
+	if(!newChunk)
+		return false
+	return newChunk.data
 }
 
 function pdfObjectMangle(input){
@@ -468,7 +478,9 @@ function calcMutatorWeights(mutators){
 
 var mutators={
 	freqString:
-		{mutatorFunction:freqString,weight:10,stringOnly:false},
+		{mutatorFunction:freqString,weight:20,stringOnly:false},
+	chunkSwapper:
+		{mutatorFunction:chunkSwapper,weight:2,stringOnly:false},
 	regExpTrick:
 		{mutatorFunction:regExpTrick,weight:10,stringOnly:false},
 	strStuttr:

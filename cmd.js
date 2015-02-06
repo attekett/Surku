@@ -205,14 +205,16 @@ function cmd(){
 		debugPrint('Not implemented yet.\n')
 		console.log('Argument '+ process.argv[index]+' is not implemented yet.')
 	}
-
+	var lastIndex=2
 	process.argv.forEach(function(arg,index){
 		var indexShort=shortArgs[0].indexOf(arg)
 		var indexLong =longArgs[0].indexOf(arg)
 		if(indexShort!=-1){
+			lastIndex=index
 			shortArgs[1][indexShort](self,index)
 		}
 		if(indexLong!=-1){
+			lastIndex=index
 			longArgs[1][indexLong](self,index)
 		}
 	})
@@ -230,6 +232,11 @@ function cmd(){
 				this.surkuConfig.inputPath=inputPath
 			}
 			else{
+				var inputPath=[]
+				for(var x=lastIndex; x<process.argv.length; x++){
+					if(fs.existsSync(process.argv[x]) && !fs.statSync(process.argv[x]).isDirectory())
+						inputPath.push(path.resolve(process.argv[x]))
+				}
 			    this.surkuConfig.inputFile=inputPath	
 			}
 		}

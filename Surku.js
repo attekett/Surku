@@ -6,6 +6,7 @@ var Surku = function (user_config){
 	var mutators = require('./mutators.js')
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
+	var isNonNullRegExp=/[^\u0000-\u0005]+/
 	var config={
 		maxMutations:30,
 		minMutations:1,
@@ -63,7 +64,7 @@ var Surku = function (user_config){
 		this.config=self.config
 		this.storage=self.storage
 		this.debugPrint= function(message,level){
-			if(this.config.hasOwnProperty('verbose') && this.config.verbose>=level){
+			if(self.config.hasOwnProperty('verbose') && self.config.verbose>=level){
 				process.stderr.write(message)
 			}
 		}
@@ -87,8 +88,10 @@ var Surku = function (user_config){
 		} 
 	*/
 	this.storage={
+		lastChunks:[],
 		maxKeys:100,
 		maxValues:30,
+		maxChunks:5,
 		valueStorages:{},
 		storeKeyValuePair:function(keyValueArray,where){
 			//Check if valueStorage name was provided
@@ -141,6 +144,14 @@ var Surku = function (user_config){
 				return self.ra(storageObject[1][index])
 			else 
 				return false
+		},
+		pushNewChunk:function(chunk){
+			if(this.lastChunks.unshift({data:chunk})>this.maxChunks){
+				this.lastChunks.pop();
+			}
+		},
+		getChunk:function(){
+			return self.ra(this.lastChunks)
 		}
 	}
 
@@ -151,7 +162,7 @@ var Surku = function (user_config){
 			var count=0;
 			var tmp=[]
 			for(; index<inputLength-config.chunkSize;count++)
-				tmp[count]=input.slice(index,index+=(Math.floor(Math.random()*500)+1))
+				tmp[count]=input.slice(index,index+=(Math.floor(Math.random()*1000)+1))
 			tmp[count]=input.slice(index,inputLength)
 			return tmp
 		}
@@ -194,8 +205,14 @@ var Surku = function (user_config){
 			while(mutations--){
 					this.debugPrint('Round: '+process.memoryUsage().heapUsed+'\n',1)
 					index=0;
+					chunk=""
 					if(input.length>1){
-						index=this.rint(input.length)
+						var tries=10
+						while(tries--){
+							index=this.rint(input.length)
+							if(isNonNullRegExp.test(input[index]))
+								break;
+						}
 						var length=0
 						var chunks=0
 						while(length<config.chunkSize){
@@ -211,21 +228,31 @@ var Surku = function (user_config){
 						chunk=input.join('')
 					}
 					isString=!stringCheckRegExp.test(chunk)
+
 					var tryCount=10
-					while(tryCount--){
-					mutator=this.ra(mutators.mutators)
-					this.debugPrint('Mutator: '+mutator.mutatorFunction.name+' - ',1)
-					if(!mutator.stringOnly || (mutator.stringOnly && isString) || !this.rint(10)){
-						result=mutator.mutatorFunction.call(this,chunk,isString)
-						if(result===false)
-							this.debugPrint('Fail\n',1)
+					result=false;
+					if(chunk.length>0){
+						if(this.storage.lastChunks.length==0 || !this.rint(5))
+							this.storage.pushNewChunk(chunk)
+						while(tryCount--){
+							mutator=this.ra(mutators.mutators)
+							this.debugPrint('Mutator: '+mutator.mutatorFunction.name+' - ',1)
+							if(!mutator.stringOnly || (mutator.stringOnly && isString) || !this.rint(3)){
+								result=mutator.mutatorFunction.call(this,chunk,isString)
+								if(result===false)
+									this.debugPrint('Fail\n',1)
+							}
+							else{
+								this.debugPrint('Fail\n',1)
+								result=false
+							}
+							if(result!==false)
+								break;
+						}
 					}
 					else{
-						this.debugPrint('Fail\n',1)
-						result=false
-					}
-					if(result!==false)
-						break;
+						if(input.length==0)
+							break;
 					}
 					if(result === false){
 						this.debugPrint('Fail\n',1)
@@ -259,7 +286,7 @@ var Surku = function (user_config){
 //TODO: Investigate if file could be read as a Stream and mutated with just a single chunk in memory.
 if(require.main===module){
 	var config=require('./cmd.js')
-	debugPrint= function(message,level){
+	var debugPrint= function(message,level){
 		if(config.hasOwnProperty('verbose') && config.verbose>=level){
 			process.stderr.write(message)
 		}
@@ -274,7 +301,7 @@ if(require.main===module){
 		var samples=fs.readdirSync(config.inputPath);
 	else if(config.inputFile){
 		config.inputPath=""
-		var samples=[config.inputFile]
+		var samples=config.inputFile
 	}
 
 	var sampleSelectorRandom=S.m.newMersenneTwister(S.seedBase.genrand_int31())
@@ -285,7 +312,8 @@ if(require.main===module){
 		fileName=config.outputName.split('%n')
 	}
 	for(var x=0; x<config.count;x++){
-		var index=Math.floor(sampleSelectorRandom.genrand_real1()*samples.length)
+		var random=sampleSelectorRandom.genrand_real1()
+		var index=Math.floor(random*samples.length)
 		var sample=samples[index]
 		debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
 		if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
