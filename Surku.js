@@ -251,7 +251,6 @@ var Surku = function (user_config){
 						}
 					}
 					else if(input.length==0 || input[0].length==0){
-						console.log('Something went wrong')
 						break;						
 					}
 					if(result!==false)
