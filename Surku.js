@@ -218,7 +218,7 @@ var Surku = function (user_config){
 						while(length<config.chunkSize){
 							length+=input[index+chunks].length
 							chunks++
-							if((index+chunks)==input.length){
+							if((index+chunks)>=input.length){
 								break;
 							}
 						}
@@ -250,20 +250,13 @@ var Surku = function (user_config){
 								break;
 						}
 					}
-					else{
-						if(input.length==0)
-							break;
+					else if(input.length==0 || input[0].length==0){
+						console.log('Something went wrong')
+						break;						
 					}
-					if(result === false){
-						this.debugPrint('Fail\n',1)
-						mutations++
-					}
-					else{ 
+					if(result!==false)
 						this.debugPrint('Success\n',1)
-						Array.prototype.splice.apply(input,[index,0].concat(splitToChunks(result)))
-					}
-					//this.debugPrint('File size: '+input.length+'\n',1)
-					
+					Array.prototype.splice.apply(input,[index,0].concat(splitToChunks(result)))			
 			}
 			this.debugPrint('End: '+process.memoryUsage().heapUsed+'\n',1)
 			input=input.join('')
@@ -295,8 +288,6 @@ if(require.main===module){
 	if(config.verbose>=5)
 		console.log(config)
 	var S=new Surku(config)
-	if(config.randomizeWeights)
-		S.mutators.randomizeWeights()
 	if(config.inputPath)
 		var samples=fs.readdirSync(config.inputPath);
 	else if(config.inputFile){
