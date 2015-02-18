@@ -4,6 +4,7 @@ var fs 		 = require('fs');
 var Surku = function (user_config){
 	this.m 		  = require('./mersenne-twister.js')
 	var mutators = require('./mutators.js')
+	this.mutators=mutators
 	var self=this
 	var stringCheckRegExp=/[\u0000-\u0005]+/
 	var isNonNullRegExp=/[^\u0000-\u0005]+/
