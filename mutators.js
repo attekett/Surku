@@ -592,7 +592,7 @@ var mutators={
 		{mutatorFunction:pdfObjectMangle,weight:5,stringOnly:true}
 }
 
-//mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:20}
+mutators["xmlMutate"]={mutatorFunction:require('./xmlMutator.js'),weight:10,stringOnly:true}
 
 var mutatorList=calcMutatorWeights(mutators)
 
