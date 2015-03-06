@@ -5,7 +5,7 @@ function cmd(){
 	var self=this
 	this.surkuConfig={
 		maxMutations:20,
-		minMutations:2,
+		minMutations:1,
 		useOnly: undefined,
 		seed: undefined,
 		count: 1,

@@ -9,7 +9,7 @@ var Surku = function (user_config){
 	var stringCheckRegExp=/[\u0000-\u0005]+/
 	var isNonNullRegExp=/[^\u0000-\u0005]+/
 	var config={
-		maxMutations:30,
+		maxMutations:20,
 		minMutations:1,
 		chunkSize:3000,
 		useOnly: undefined,
@@ -194,7 +194,7 @@ var Surku = function (user_config){
 		if(input.length!=0){
 			var mutations
 			if(this.config.maxMutations!==undefined)	
-				mutations=this.rint(this.config.maxMutations-this.config.minMutations)+this.config.minMutations
+				mutations=(this.wrint(this.config.maxMutations-this.config.minMutations)-1)+this.config.minMutations
 			else
 				mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
 			var index;
