@@ -103,7 +103,6 @@ function delimiterMutator(input){
 //		console.log('Fail:'+ (chunks.length)+'<'+(input.length/300) )
 		return false
 	}
-	console.log('Chunks:' + chunks.length)
 	switch(this.rint(3)) {
     case 0:
 //    	console.log('Repeat')

@@ -199,7 +199,6 @@ var Surku = function (user_config){
 				mutations=(this.wrint(this.config.maxMutations-this.config.minMutations)-1)+this.config.minMutations
 			else
 				mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
-			console.log(mutations)
 			var index;
 			var mutator;
 			var chunk;
