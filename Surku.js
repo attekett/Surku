@@ -193,10 +193,13 @@ var Surku = function (user_config){
 		//console.log('Chunks: '+input.length)
 		if(input.length!=0){
 			var mutations
-			if(this.config.maxMutations!==undefined)	
+			if(this.config.maxMutations == this.config.minMutations)
+				mutations=this.config.maxMutations
+			else if(this.config.maxMutations!==undefined)	
 				mutations=(this.wrint(this.config.maxMutations-this.config.minMutations)-1)+this.config.minMutations
 			else
 				mutations=this.config.minMutations ? (this.config.minMutations+this.wrint(100)) : this.wrint(100)
+			console.log(mutations)
 			var index;
 			var mutator;
 			var chunk;
@@ -226,7 +229,7 @@ var Surku = function (user_config){
 						chunk=input.splice(index,chunks).join('')
 					}
 					else{
-						chunk=input.join('')
+						chunk=input.splice(0,1).join('')
 					}
 					isString=!stringCheckRegExp.test(chunk)
 
@@ -254,9 +257,11 @@ var Surku = function (user_config){
 					else if(input.length==0 || input[0].length==0){
 						break;						
 					}
-					if(result!==false)
+					if(result!==false){
 						this.debugPrint('Success\n',1)
-					Array.prototype.splice.apply(input,[index,0].concat(splitToChunks(result)))			
+						Array.prototype.splice.apply(input,[index,0].concat(splitToChunks(result)))			
+					}
+					
 			}
 			this.debugPrint('End: '+process.memoryUsage().heapUsed+'\n',1)
 			input=input.join('')

@@ -88,48 +88,77 @@ function collectTrigrams(input){
 
 //String mutators
 
-function lineCopy(input){
-	var lines=input.split('\n')
-	if(lines.length<3)
-		return false
-	lines.splice(this.rint(lines.length),0,this.ra(lines))
-	return (lines.join('\n'))
-}
 
-function lineRepeat(input){
-	var lines=input.split('\n')
-	if(lines.length<3)
+//Leaving in console.logs for now. Will remove them once this new mutator is tested properly.
+function delimiterMutator(input){
+	var delimiter=this.ra([' ','\n','<','>','\"','\'',',','.',';','|'])
+//	console.log('Delimiter: '+delimiter)
+	var chunks=input.split(delimiter)
+	var chunk=this.ra(chunks)
+	if(chunk.length>5 && chunk.length<300)
+		this.storage.storeKeyValuePair([delimiter,chunk],'delimiterMutator')
+	var oldChunk=this.storage.getValueForKey(delimiter,'delimiterMutator')
+				
+	if(chunks.length<3 || chunks.length<input.length/300){
+//		console.log('Fail:'+ (chunks.length)+'<'+(input.length/300) )
 		return false
-	var line=this.ra(lines)
-	var rounds=this.wrint(2000);
-	var lineChunk=''
-	while((rounds>0) || this.rint(3)){
-		rounds--
-		lineChunk+=(line+'\n')
 	}
-	lines.splice(this.rint(lines.length),0,lineChunk)
-	return (lines.join('\n'))
+	console.log('Chunks:' + chunks.length)
+	switch(this.rint(3)) {
+    case 0:
+//    	console.log('Repeat')
+    	return chunkRepeat.call(this,chunks,delimiter,oldChunk)
+    case 1:
+//    	console.log('Swap')
+    	return chunkSwap.call(this,chunks,delimiter,oldChunk)
+    case 2:
+//    	console.log('Move')
+    	return chunkMove.call(this,chunks,delimiter)
+    default:
+        console.log('WTF?')
+	}
 }
 
-function lineSwap(input){
-	var lines=input.split('\n')
-	if(lines.length<3)
-		return false
-	var index1=this.rint(lines.length)
-	var index2=this.rint(lines.length)
-	var line1=lines[index1]
-		lines[index1]=lines[index2]
-		lines[index2]=line1
-	return (lines.join('\n'))
+function chunkRepeat(chunks,delimiter,oldChunk){
+	var chunk=oldChunk
+	if(!chunk || this.rint(3)){
+		chunk=this.ra(chunks)	
+	}
+	var rounds=this.wrint(2000);
+	var chunkChunk=''
+	while((rounds>0)){
+		rounds--
+		chunkChunk+=(chunk+delimiter)
+	}
+	var index=this.rint(chunks.length-2)+1
+//	console.log('Inserting: '+chunkChunk+' To: '+index)
+	chunks.splice(index,0,chunkChunk)
+	return (chunks.join(delimiter))
+}
+
+function chunkSwap(chunks,delimiter,oldChunk){
+	if(!oldChunk || this.rint(3)){
+		var index1=this.rint(chunks.length)
+		var index2=this.rint(chunks.length)
+//		console.log('Swapping: '+chunks[index1]+' To: '+chunks[index2])
+		var chunk1=chunks[index1]
+			chunks[index1]=chunks[index2]
+			chunks[index2]=chunk1
+	}
+	else{
+		var index=this.rint(chunks.length-2)+1
+//		console.log('Swapping: '+chunks[index]+' To: '+oldChunk)
+		
+		chunks[index]=oldChunk
+	}
+	return (chunks.join(delimiter))
 
 }
 
-function lineMove(input){
-	var lines=input.split('\n')
-	if(lines.length<3)
-		return false
-	lines.splice(this.rint(lines.length),0,lines.splice(this.rint(lines.length),1)[0])
-	return (lines.join('\n'))
+function chunkMove(chunks,delimiter){
+	var count=this.wrint(10)
+	chunks.splice(this.rint(chunks.length-2)+1,0,chunks.splice(this.rint(chunks.length-1)+1,count).join(delimiter))
+	return (chunks.join(delimiter))
 }
 
 function strCopyShort(input){
@@ -421,34 +450,6 @@ function mutateNumber(input){
     }
 }
 
-function wordCopy(input){
-	var wordList=input.split(' ')
-	if(wordList.length<3)
-		return false
-	var wordIndex=this.rint(wordList.length)
-	var word=[wordList[wordIndex]]
-	if(word[0].length>200){
-		return false
-	}
-	var howMany=this.wrint()
-	while((howMany>0) || this.rint(3)){
-		howMany--;
-		word.push(word[0])
-	}
-	wordList.splice(this.rint(wordList.length),0,word.join(' '))
-	var result=wordList.join(' ')
-	return result
-}
-
-function wordRemove(input){
-	var wordList=input.split(' ')
-	if(wordList.length<(input.length/100))
-		return false
-	wordList.splice(this.rint(wordList.length),this.wrint(10))
-	var result=wordList.join(' ')
-	return result
-}
-
 function bitFlip(input){
 	var where=this.rint(input.length)
 	var input_start=input.substring(0,where)
@@ -552,18 +553,8 @@ var mutators={
 		{mutatorFunction:regExpTrick,weight:10,stringOnly:false},
 	strStuttr:
 		{mutatorFunction:strStuttr,weight:12,stringOnly:false},
-	lineCopy:
-		{mutatorFunction:lineCopy,weight:5,stringOnly:true},
-	lineSwap:
-		{mutatorFunction:lineSwap,weight:5,stringOnly:true},
-	lineMove:
-		{mutatorFunction:lineMove,weight:5,stringOnly:true},
-	lineRepeat:
-		{mutatorFunction:lineRepeat,weight:5,stringOnly:true},
-	wordCopy:
-		{mutatorFunction:wordCopy,weight:5,stringOnly:true},
-	wordRemove:
-		{mutatorFunction:wordRemove,weight:5,stringOnly:true}, 
+	delimiterMutator:
+		{mutatorFunction:delimiterMutator,weight:12,stringOnly:false},
 	mutateNumber:
 		{mutatorFunction:mutateNumber,weight:10,stringOnly:false},
 	replaceXMLValuePair:
