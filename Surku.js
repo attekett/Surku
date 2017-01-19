@@ -310,17 +310,20 @@ if(require.main===module){
 		var random=sampleSelectorRandom.genrand_real1()
 		var index=Math.floor(random*samples.length)
 		var sample=samples[index]
-		debugPrint('Input file: '+config.inputPath+'/'+sample+'\n',5)
-		if(fs.statSync(config.inputPath+'/'+sample).isDirectory()){
+		if(config.inputPath)
+			sample=path.join(config.inputPath,sample)
+		debugPrint('Input file: '+sample+'\n',5)
+
+		if(fs.statSync(sample).isDirectory()){
 			x--
 			samples.splice(index,1)
 			if(samples.length==0){
 				console.log("Input folder doesn't contain any files")
 				process.exit(2)
 			}
-		}	
+		}
 		else{
-			output=S.generateTestCase(fs.readFileSync(config.inputPath+'/'+sample))
+			output=S.generateTestCase(fs.readFileSync(sample))
 			if(fileName=='')
 				console.log(output.toString())
 			else{
