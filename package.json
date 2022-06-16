@@ -3,21 +3,32 @@
   "description": "A mutation-based general purpose fuzzer.",
   "version": "0.1.14",
   "main": "Surku.js",
-  "bin": { "surku": "Surku.js" },
-  "repository" : {
-      "type" : "git",
-      "url" : "http://github.com/attekett/Surku.git"
+  "bin": {
+    "surku": "Surku.js"
   },
-  "keywords" : [
-      "fuzzing",
-      "mutation-based"
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/attekett/Surku.git"
+  },
+  "keywords": [
+    "fuzzing",
+    "mutation-based"
   ],
-  "author" : {
-      "name" : "Atte Kettunen",
-      "email" : "attekett@gmail.com"
+  "author": {
+    "name": "Atte Kettunen",
+    "email": "attekett@gmail.com"
   },
-  "license" : "MIT",
-  "engine" : {
-      "node" : ">=0.8"
-  }
+  "license": "MIT",
+  "engine": {
+    "node": ">=0.8"
+  },
+  "devDependencies": {
+    "eslint": "^8.17.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "prettier": "^2.7.1"
+  },
+  "eslintIgnore": [
+    "mersenne-twister.js"
+  ]
 }

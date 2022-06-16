@@ -1,0 +1,10 @@
+{
+  "editor.defaultFormatter": "svipas.prettier-plus",
+  "editor.formatOnSave": true,
+  "prettier.endOfLine": "lf",
+  "files.eol": "\n",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "eslint.validate": ["javascript"]
+}
