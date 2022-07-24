@@ -6,7 +6,7 @@ const mutatorDebug = 0;
 
 function allIndexes(from, what) {
   const indices = [];
-  let index = from.indexOf(what, index);
+  let index = from.indexOf(what, 0);
   let i = 0;
   while (index > 0) {
     indices[i] = index;
